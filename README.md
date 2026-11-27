@@ -56,6 +56,28 @@ With the development or production server running, open a second terminal in the
 
 The foundation uses Next.js App Router, React, strict TypeScript, Tailwind CSS, local Geist fonts, ESLint, and Prettier. Supabase Auth verifies identities and PostgreSQL Row Level Security restricts private progress. The practice route grades answers on the server. The two public demo examples include their answers in the browser bundle.
 
+## Install CodeDojo
+
+Open the site over HTTPS, or use localhost with `npm run build` and `npm start` for local testing. Choose **Install App** on Home or in the header. Installed CodeDojo opens in a standalone window.
+
+- **Android** — Use the Chrome installation prompt. If it does not appear, open the browser menu and choose **Install app** or **Add to Home screen**.
+- **iPhone and iPad** — In Safari, tap **Share** and **Add to Home Screen**. Turn on **Open as Web App** if shown, then tap **Add**.
+- **Desktop** — Look for installation in the Chrome or Edge address bar or menu. On supporting versions of Safari for Mac, choose **File → Add to Dock**.
+
+On mobile, the bottom bar gives you Home, Learn, Practice, DojoLab, and Account. The DojoLab tab opens the existing Python and JavaScript editor directly. Dojo Radio sits above the bar and keeps playing while you switch tabs in the app.
+
+### Offline Academy and updates
+
+Visit the app online once in a browser that supports service workers. The worker caches the public, read-only copy of 23 Python and JavaScript lessons and 46 worked examples. If navigation fails offline, it opens that library. You can also open it at `/offline`. Sign-in, progress, XP, interactive challenges, and loading the full playground require a connection.
+
+The worker writes only the anonymous offline Academy document to Cache Storage. It leaves application bundles, account pages, Supabase requests, and email links to the network. New versions wait for older tabs or installed windows to close, then clean up their own older caches. Close all CodeDojo tabs and windows and reopen CodeDojo to activate a waiting update. The service worker runs only in production builds.
+
+### Account links from email
+
+Use the same Supabase account in the browser and the installed app. An email link can open in a different browser whose signed-in session is separate. The token-hash signup and reset links in the Supabase setup below work in that browser without copying cookies or signing tokens between apps. After confirming an account or resetting a password in the external browser, sign in again from the installed app using the same account. Your saved progress and XP are stored in Supabase.
+
+To test the PWA locally, start the production build, open the app once, then disconnect and reload Home after the service worker activates. Restore your connection and confirm Home loads again. Use a second browser or separate profile for an email confirmation or recovery link. For the isolated local Auth fixture, see the production password recovery tests below.
+
 ## Dojo Radio
 
 The bottom-left player loops the supplied soundtrack at 15% volume for new visitors. If the browser blocks autoplay, the first click or tap starts playback. Use the player to pause or resume, and expand **Dojo Radio** to adjust volume, mute, or turn the music off. The browser remembers these settings, including pause and off, on refresh.

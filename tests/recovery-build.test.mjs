@@ -59,7 +59,7 @@ function decodeHtml(text) {
 }
 
 test(
-  "production build keeps registration and password recovery separate",
+  "production email confirmation and external-browser recovery stay separate",
   {
     skip: process.env.CODEDOJO_TEST_RECOVERY_BUILD !== "1",
     timeout: 45000,
@@ -211,6 +211,15 @@ test(
       "/forgot-password?link=expired",
     );
 
+    const installedApp = browser();
+    const forgot = await (await installedApp("/forgot-password")).text();
+    await installedApp(
+      "/forgot-password",
+      post(forgot, { email: account.email }),
+    );
+    assert.ok(resetChallenge);
+
+    // The mail app opens the link in a separate browser cookie jar.
     const recovery = browser();
     const reset = await recovery(
       "/auth/confirm?token_hash=reset&type=recovery",
@@ -225,6 +234,10 @@ test(
         ),
     );
     assert.equal(location(await recovery("/onboarding")), "/reset-password");
+    assert.equal(
+      location(await installedApp("/reset-password")),
+      "/forgot-password?link=expired",
+    );
     const html = await (await recovery("/reset-password")).text();
     assert.match(html, /New Password/);
     assert.match(html, /Confirm New Password/);
@@ -268,8 +281,8 @@ test(
     assert.equal(location(wrongToken), "/forgot-password?link=expired");
 
     const pkce = browser();
-    const forgot = await (await pkce("/forgot-password")).text();
-    await pkce("/forgot-password", post(forgot, { email: account.email }));
+    const pkceForm = await (await pkce("/forgot-password")).text();
+    await pkce("/forgot-password", post(pkceForm, { email: account.email }));
     assert.ok(resetChallenge);
     const exchanged = await pkce("/auth/confirm?code=valid-pkce");
     assert.equal(location(exchanged), "/reset-password");

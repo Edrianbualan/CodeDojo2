@@ -2,7 +2,9 @@
   position: fixed;
   z-index: 20;
   left: max(0.75rem, env(safe-area-inset-left));
-  bottom: max(0.75rem, env(safe-area-inset-bottom));
+  bottom: calc(
+    var(--app-navigation-height) + max(0.75rem, env(safe-area-inset-bottom))
+  );
   color: var(--color-dojo-text);
   font:
     0.86rem / 1.4 var(--font-geist-mono),

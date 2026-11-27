@@ -33,18 +33,20 @@ export function DojoLab({
   onAssist,
   onExplain,
   expectedOutput,
+  initiallyOpen = false,
 }: {
   original: string;
   initialLanguage: LabLanguage;
   onAssist?: () => void;
   expectedOutput?: string;
+  initiallyOpen?: boolean;
   onExplain?: (value: {
     code: string;
     result: LabResult;
     language: LabLanguage;
   }) => void;
 }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(initiallyOpen);
   const [code, setCode] = useState(original);
   const [input, setInput] = useState("");
   const [language, setLanguage] = useState(initialLanguage);
@@ -259,6 +261,7 @@ export function DojoLab({
                 spellCheck={false}
                 autoCapitalize="off"
                 autoCorrect="off"
+                inputMode="text"
                 rows={9}
                 maxLength={maxSource}
                 onKeyDown={(event) => {

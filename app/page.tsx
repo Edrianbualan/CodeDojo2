@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { InstallAppButton } from "../components/app-experience";
 import { CodePreview } from "../components/code-preview";
 
 const features = [
@@ -60,6 +61,7 @@ export default function Home() {
             <a className="button outline" href="#features">
               Explore Features
             </a>
+            <InstallAppButton className="button outline" />
           </div>
         </div>
         <CodePreview />

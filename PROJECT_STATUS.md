@@ -67,6 +67,14 @@
 - Browser checks covered first-click playback, uninterrupted audio across routes and Academy lessons, opening DojoLab, answer feedback, pause and resume, saved mute, volume and off settings, and the expanded and collapsed player at 320 CSS pixels with Practice open.
 - The production build, ESLint, Prettier, TypeScript, and all 35 tests passed. The suite exercises autoplay permission handling, persistent preferences, fades, and the gain fallback for devices that restrict media-element volume. Native Firefox, Safari, and mobile devices were outside this test run.
 
+## Installable CodeDojo PWA
+
+- Added the Next.js web app manifest, standalone display, CodeDojo pixel-brand icons, maskable PNGs, the Apple Touch Icon, and platform-aware installation help on Home and in the header. The button uses the native install prompt when available and hides in standalone.
+- Mobile navigation connects Home, Learn, Practice, DojoLab, and Account. The DojoLab tab opens the existing editor with no practice question required. DojoSensei remains collapsible, and Dojo Radio stays above the bottom bar with one soundtrack across page transitions.
+- The production service worker stores one versioned public document with read-only notes from all 23 Academy lessons and 46 worked examples. It verifies the document revision during install, allows old tabs to finish before activation, and removes only its own prior caches. Private responses, auth links, and personalized data are never written to Cache Storage. Existing Supabase accounts and tables are reused.
+- Production build, TypeScript, ESLint, Prettier, and all 39 tests passed. Tests covered icon dimensions, service-worker revision and cache behavior, separate-browser password recovery using the Auth fixture, and private progress in local PostgreSQL.
+- Browser checks verified installation help, mobile navigation and tutor at 320 and 390 CSS pixels, a Python run in DojoLab, continued radio playback, and opening a cached lesson with the preview server stopped. Native Android and desktop installation, iPhone and iPad Home Screen launches, and live Gmail/Supabase synchronization still need real-device or hosted verification.
+
 ## Later roadmap
 
 1. **Phase 4** — Learning paths, daily challenges, broader XP and achievements, rankings, and advanced analytics.
