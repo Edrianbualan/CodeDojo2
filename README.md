@@ -77,6 +77,15 @@ The landing page and guest practice run without configuration. For accounts, use
 
 Optional Google sign-in requires configuring the Google provider in the development Supabase project and setting `ENABLE_GOOGLE_AUTH=true`. A Google-only account can set a password through recovery before using password-confirmed deletion. Consult the official [Supabase server-side Auth guide](https://supabase.com/docs/guides/auth/server-side/creating-a-client?queryGroups=framework&framework=nextjs) and [password-based Auth guide](https://supabase.com/docs/guides/auth/passwords) for provider and email setup.
 
+### Production password recovery
+
+1. In **Vercel → Project Settings → Environment Variables**, set the production `NEXT_PUBLIC_APP_URL` to the exact HTTPS origin of CodeDojo, such as `https://your-project.vercel.app`. If the explicit origin is missing or points to localhost, a Vercel deployment uses `VERCEL_PROJECT_PRODUCTION_URL` when available. Set the optional server-only `AUTH_RECOVERY_SECRET` to a random value of at least 32 bytes, or keep the existing `SUPABASE_SERVICE_ROLE_KEY` configured. The signing secret must stay stable across requests.
+2. In **Supabase → Authentication → URL Configuration**, set **Site URL** to the same origin. In **Redirect URLs**, allow that origin with both `/auth/confirm` and `/auth/confirm?flow=recovery`.
+3. In **Supabase → Authentication → Email Templates**, set the **Reset password** link to `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery`. Keep **Confirm signup** on `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email`. These are email template link targets. Leave the Gmail SMTP settings as they are.
+4. After deploying the updated code, request a fresh link through **Forgot password?**. A verified recovery link opens the password form before onboarding. Updating the password signs out the recovery session and returns to sign-in. Older PKCE links requested before this release may require a fresh request.
+
+The recovery form is available for up to 15 minutes after verification and is tied to that Supabase session. Test the local production build against the included Supabase fixture by running `npm run build`, then setting `$env:CODEDOJO_TEST_RECOVERY_BUILD = "1"` and running `node --test tests/recovery-build.test.mjs`. [Supabase email templates](https://supabase.com/docs/guides/auth/auth-email-templates) · [Vercel system environment variables](https://vercel.com/docs/environment-variables/system-environment-variables)
+
 ### Diagnose profile and progress errors
 
 Open Supabase **SQL Editor**, run this read-only query, and look for null entries.

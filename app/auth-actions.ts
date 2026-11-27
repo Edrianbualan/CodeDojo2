@@ -5,6 +5,19 @@ import { trainingReturn } from "../lib/auth/training-return";
 import { z } from "zod";
 import { account, serviceClient, supabase } from "../lib/supabase/server";
 import { experiences, profileLanguages, goals } from "../lib/auth/preferences";
+import { authOrigin } from "../lib/auth/origin";
+import { authConfig } from "../lib/supabase/config";
+import { recoverySession } from "../lib/auth/recovery-session";
+import {
+  authCookieName,
+  pendingAge,
+  pendingCookie,
+  recoveryConfigured,
+  recoveryCookie,
+  recoveryOptions,
+  recoveryVerifier,
+  sealRecovery,
+} from "../lib/auth/recovery-proof";
 
 const email = z.email().max(254);
 const password = z
@@ -13,8 +26,6 @@ const password = z
   .max(72)
   .refine((value) => new TextEncoder().encode(value).length <= 72);
 const credentials = z.object({ email, password });
-const siteOrigin = () =>
-  process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
 export async function login(_: string, form: FormData) {
   const fields = credentials.safeParse({
@@ -38,10 +49,11 @@ export async function register(_: string, form: FormData) {
   if (!fields.success)
     return "Enter a valid email and a password between 8 and 72 bytes.";
   const client = await supabase();
-  if (!client) return "Account services are unavailable.";
+  const origin = authOrigin();
+  if (!client || !origin) return "Account services are unavailable.";
   const { data, error } = await client.auth.signUp({
     ...fields.data,
-    options: { emailRedirectTo: new URL("/auth/confirm", siteOrigin()).href },
+    options: { emailRedirectTo: new URL("/auth/confirm", origin).href },
   });
   if (error)
     return "Registration could not be completed. Check your email or try again later.";
@@ -61,24 +73,57 @@ export async function forgotPassword(_: string, form: FormData) {
   const address = email.safeParse(form.get("email"));
   const client = await supabase();
   if (!address.success) return "Enter a valid email address.";
-  if (!client) return "Account services are unavailable.";
-  await client.auth.resetPasswordForEmail(address.data, {
-    redirectTo: new URL("/auth/confirm?flow=recovery", siteOrigin()).href,
+  const config = authConfig();
+  const origin = authOrigin();
+  if (!client || !config || !origin || !recoveryConfigured())
+    return "Password recovery is unavailable. Try again later.";
+  const { error } = await client.auth.resetPasswordForEmail(address.data, {
+    redirectTo: new URL("/auth/confirm?flow=recovery", origin).href,
   });
+  if (!error) {
+    const jar = await cookies();
+    const verifier = recoveryVerifier(config.url, jar.getAll(), null);
+    const proof = verifier && sealRecovery("verifier", verifier, pendingAge);
+    if (proof)
+      jar.set(
+        pendingCookie,
+        proof,
+        recoveryOptions(origin.startsWith("https:"), pendingAge),
+      );
+  }
   return "If that email belongs to an account, a reset link will be sent.";
 }
 
 export async function resetPassword(_: string, form: FormData) {
+  const client = await recoverySession();
+  if (!client) redirect("/forgot-password?link=expired");
   const value = password.safeParse(form.get("password"));
-  const session = await account();
-  if (!session) return "Open a new password reset link or sign in.";
   if (!value.success) return "Choose a password between 8 and 72 bytes.";
-  const { error } = await session.client.auth.updateUser({
+  if (value.data !== form.get("confirmPassword"))
+    return "The passwords do not match.";
+  const { error } = await client.auth.updateUser({
     password: value.data,
   });
   if (error)
     return "Unable to update the password. Try a different password or request a new link.";
-  redirect("/dashboard");
+  const signOut = await client.auth
+    .signOut({ scope: "local" })
+    .catch(() => null);
+  const jar = await cookies();
+  const expired = recoveryOptions(
+    Boolean(authOrigin()?.startsWith("https:")),
+    0,
+  );
+  jar.set(recoveryCookie, "", expired);
+  const config = authConfig();
+  if (config && (!signOut || signOut.error)) {
+    const name = authCookieName(config.url);
+    for (const cookie of jar.getAll()) {
+      if (cookie.name === name || cookie.name.startsWith(name + "."))
+        jar.set(cookie.name, "", expired);
+    }
+  }
+  redirect("/login?password=updated");
 }
 
 export async function logout() {
@@ -124,10 +169,11 @@ export async function googleLogin(_: string, form: FormData) {
   if (process.env.ENABLE_GOOGLE_AUTH !== "true")
     return "Google sign-in is unavailable.";
   const client = await supabase();
-  if (!client) return "Account services are unavailable.";
+  const origin = authOrigin();
+  if (!client || !origin) return "Account services are unavailable.";
   const { data, error } = await client.auth.signInWithOAuth({
     provider: "google",
-    options: { redirectTo: new URL("/auth/confirm", siteOrigin()).href },
+    options: { redirectTo: new URL("/auth/confirm", origin).href },
   });
   if (error || !data.url) return "Google sign-in could not be started.";
   const destination = trainingReturn(form.get("next"));

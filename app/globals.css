@@ -980,3 +980,22 @@ h1,
   color: #67e8f9;
   accent-color: #67e8f9;
 }
+
+.password-field {
+  min-width: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+.password-input {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+.password-input input {
+  flex: 1;
+  min-width: 0;
+}
+.password-input .button {
+  min-width: 3.75rem;
+  min-height: 44px;
+}

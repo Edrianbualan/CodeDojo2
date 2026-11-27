@@ -1,40 +1,37 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
+
 import {
   forgotPassword,
   googleLogin,
   login,
   register,
-  resetPassword,
 } from "../app/auth-actions";
 import { authConfig } from "../lib/supabase/config";
-import { account } from "../lib/supabase/server";
 import { AccountForm } from "./account-form";
 import { trainingReturn } from "../lib/auth/training-return";
 
-const actions = { login, register, forgotPassword, resetPassword };
+const actions = { login, register, forgotPassword };
 const titles = {
   login: "Sign in",
   register: "Create an account",
   forgotPassword: "Reset your password",
-  resetPassword: "Choose a new password",
 };
 
 export async function AuthPage({
   mode,
   expired,
   next,
+  passwordUpdated,
 }: {
   mode: keyof typeof actions;
   expired?: boolean;
   next?: string;
+  passwordUpdated?: boolean;
 }) {
   const title = titles[mode];
   const destination = trainingReturn(next);
   const query = destination ? "?next=" + encodeURIComponent(destination) : "";
   const configured = authConfig();
-  if (configured && mode === "resetPassword" && !(await account()))
-    redirect("/forgot-password");
   return (
     <section className="wrap section dojo-narrow">
       <h1>{title}</h1>
@@ -46,6 +43,11 @@ export async function AuthPage({
                 That link is invalid or expired. Request a new link or sign in.
               </p>
             )}
+            {passwordUpdated && (
+              <p role="status" className="dojo-correct">
+                Password updated. Sign in with your new password.
+              </p>
+            )}
             <AccountForm
               action={actions[mode]}
               label={mode === "forgotPassword" ? "Send reset link" : title}
@@ -53,18 +55,16 @@ export async function AuthPage({
               {destination && (
                 <input type="hidden" name="next" value={destination} />
               )}
-              {mode !== "resetPassword" && (
-                <label>
-                  Email
-                  <input
-                    type="email"
-                    name="email"
-                    autoComplete="email"
-                    maxLength={254}
-                    required
-                  />
-                </label>
-              )}
+              <label>
+                Email
+                <input
+                  type="email"
+                  name="email"
+                  autoComplete="email"
+                  maxLength={254}
+                  required
+                />
+              </label>
               {mode !== "forgotPassword" && (
                 <label>
                   Password

@@ -45,6 +45,12 @@
 - The account page now provides separate diagnostics for missing schema objects, database permissions, and connection errors. This checkout has no live Supabase credentials or production Git remote. The exact hosted cause and authenticated dashboard still need live verification. README.md contains the read-only schema preflight and migration steps.
 - Browser checks passed for Python, JavaScript input, syntax errors, cancellation, execution timeout, tutor explanations, and fullscreen chat at 320 CSS pixels. Production-build checks confirmed Python, JavaScript network restrictions, the terminal output cap, and the 768px layout. Local PostgreSQL tests passed for all four migrations, assistance isolation, unique completion, and duplicate XP protection.
 
+## Password recovery
+
+- Registration confirmation and password recovery use separate callback paths after Supabase verifies the link. A signed, short-lived recovery cookie binds password updates to the verified Supabase session. Same-browser PKCE recovery also works when the callback loses its recovery query marker.
+- The recovery page includes matching password fields and visibility controls. A successful update clears the browser recovery session and returns the user to sign-in. Invalid and expired links lead back to the request form.
+- Production redirect configuration and email template targets are documented in README.md. Verification uses a local Supabase Auth fixture with synthetic accounts. Hosted Gmail delivery and the Vercel reset flow still need a live check after the updated release.
+
 ## Later roadmap
 
 1. **Phase 4** — Learning paths, daily challenges, broader XP and achievements, rankings, and advanced analytics.
