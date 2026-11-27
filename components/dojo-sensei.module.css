@@ -1,0 +1,288 @@
+.rail {
+  min-width: 0;
+  align-self: stretch;
+}
+.dock {
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+  gap: 0.65rem;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.trigger {
+  display: grid;
+  justify-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  border-radius: 0.65rem;
+}
+.robot {
+  display: block;
+  height: 112px;
+  position: relative;
+  background-image: url("/dojo-sensei/reference.png");
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  animation: sensei-float 3.4s ease-in-out infinite;
+  filter: drop-shadow(0 4px 8px #06b6d425);
+}
+.blink {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  animation: sensei-blink 6.2s step-end infinite;
+}
+.blink::before,
+.blink::after {
+  content: "";
+  position: absolute;
+  top: 39.5%;
+  width: 10%;
+  height: 16%;
+  background: linear-gradient(
+    #131c21 45%,
+    #09e6f8 45%,
+    #09e6f8 56%,
+    #131c21 56%
+  );
+  border-radius: 15%;
+  box-shadow: 0 0 4px 1px #131c21;
+}
+.blink::before {
+  left: 43%;
+}
+.blink::after {
+  left: 69.5%;
+}
+.badge,
+.audio button,
+.actions button {
+  border: 1px solid #a78bfa60;
+  background: #211a33;
+  border-radius: 0.55rem;
+  padding: 0.45rem 0.65rem;
+  color: #e9ddff;
+  font-size: 0.875rem;
+  text-align: left;
+}
+.trigger:hover .badge,
+.audio button:hover,
+.actions button:hover {
+  background: #342551;
+  border-color: #a78bfa;
+}
+.audio button:active,
+.actions button:active {
+  transform: translateY(1px);
+}
+.actions button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+.bubble {
+  max-width: 100%;
+  padding: 0.6rem 0.78rem;
+  color: #f2ebff;
+  background: #211a33;
+  border: 1px solid #a78bfa60;
+  border-radius: 0.75rem 0.75rem 0.15rem 0.75rem;
+  font-size: 0.875rem;
+  animation: sensei-in 0.2s ease-out;
+}
+.bubble span {
+  display: block;
+  animation: sensei-in 0.2s ease-out;
+}
+.panel {
+  width: 100%;
+  max-height: min(33rem, 52dvh);
+  overflow: auto;
+  overscroll-behavior: contain;
+  background: linear-gradient(155deg, #211a33, #161b22 55%);
+  border: 1px solid #a78bfa60;
+  border-radius: 0.85rem;
+  padding: 0.85rem;
+  box-shadow: 0 9px 22px #0004;
+  animation: sensei-in 0.2s ease-out;
+}
+.header h2 {
+  font-size: 1.25rem;
+}
+.header p,
+.topic {
+  font-size: 0.84rem;
+  color: var(--color-dojo-muted);
+}
+.topic {
+  margin-top: 0.65rem;
+}
+.topic strong {
+  color: var(--color-dojo-text);
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.55rem;
+}
+.actions button {
+  cursor: pointer;
+}
+.reply {
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+  margin-top: 0.7rem;
+  padding: 0.6rem;
+  border-radius: 0.5rem;
+  background: var(--color-dojo-bg);
+  font-size: 0.875rem;
+}
+.reply pre {
+  white-space: pre;
+  margin-bottom: 0;
+}
+.typing {
+  animation: sensei-thinking 0.9s ease-in-out alternate infinite;
+}
+.audio {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+}
+.audio button {
+  cursor: pointer;
+}
+.audio label {
+  font-size: 0.84rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.audio input {
+  accent-color: #a78bfa;
+  width: 5.25rem;
+}
+@keyframes sensei-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+@keyframes sensei-blink {
+  0%,
+  51%,
+  55%,
+  100% {
+    opacity: 0;
+  }
+  52%,
+  54% {
+    opacity: 1;
+  }
+}
+@keyframes sensei-in {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes sensei-thinking {
+  from {
+    opacity: 0.62;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (min-width: 1050px) {
+  .rail {
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+  }
+  .dock {
+    position: sticky;
+    bottom: 1rem;
+    margin-top: 1.5rem;
+  }
+}
+@media (max-width: 1049px) {
+  .rail {
+    margin-top: 1.3rem;
+  }
+  .dock {
+    max-width: 29rem;
+    margin-left: auto;
+  }
+  .panel {
+    max-height: initial;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .robot,
+  .blink,
+  .bubble,
+  .bubble span,
+  .panel,
+  .typing {
+    animation: none;
+  }
+  .audio button:active,
+  .actions button:active {
+    transform: none;
+  }
+}
+
+.chatHistory {
+  min-height: 5rem;
+  max-height: 13rem;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 0.3rem;
+}
+.userMessage {
+  margin: 0.55rem 0 0.55rem 1rem;
+  border-radius: 0.55rem;
+  padding: 0.6rem;
+  background: #382857;
+  font-size: 0.875rem;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.userMessage strong,
+.reply strong {
+  color: #ddd0ff;
+}
+.composer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  background: #171520;
+  padding: 0.45rem 0;
+}
+.composer textarea {
+  width: 100%;
+  min-height: 3.4rem;
+  resize: vertical;
+  padding: 0.45rem;
+  background: #10121a;
+  border: 1px solid #8a71ad;
+  border-radius: 0.5rem;
+}
+.composer button {
+  font-size: 0.8rem;
+}
+.panel details summary {
+  cursor: pointer;
+  color: #ddd0ff;
+  margin-top: 0.5rem;
+}
