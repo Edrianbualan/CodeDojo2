@@ -59,6 +59,14 @@
 - A new additive migration stores private course progress, last-accessed items, best scores, attempts, and one XP award per passed item. Completion, achievements, estimations, and UTC streaks are calculated from course records. Live Supabase needs the migration and a signed-in check.
 - The production build, TypeScript, and all 30 automated tests passed, including password recovery regression checks. Browser testing covered the Python lesson flow, contextual help, navigation, and a JavaScript project and quiz at 320 CSS pixels. Local PostgreSQL verified account isolation and duplicate XP protection.
 
+## Dojo Radio
+
+- The shared layout owns one looping soundtrack player. New visitors start at 15% volume. The player attempts autoplay, retries when the browser grants a click or tap, and fades between playback states and volume changes.
+- Play and pause, mute, volume, and the music switch are independent of DojoSensei sound effects. Music settings persist in local browser storage. The bottom-left player starts collapsed and respects the reduced-motion preference.
+- The supplied `public/audio/background.mp3` matches the source byte for byte. The production server responds to MP3 byte-range requests. Practice Setup now submits through Next.js client navigation, retaining the player when training starts.
+- Browser checks covered first-click playback, uninterrupted audio across routes and Academy lessons, opening DojoLab, answer feedback, pause and resume, saved mute, volume and off settings, and the expanded and collapsed player at 320 CSS pixels with Practice open.
+- The production build, ESLint, Prettier, TypeScript, and all 35 tests passed. The suite exercises autoplay permission handling, persistent preferences, fades, and the gain fallback for devices that restrict media-element volume. Native Firefox, Safari, and mobile devices were outside this test run.
+
 ## Later roadmap
 
 1. **Phase 4** — Learning paths, daily challenges, broader XP and achievements, rankings, and advanced analytics.

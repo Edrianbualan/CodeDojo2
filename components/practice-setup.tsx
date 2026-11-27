@@ -1,5 +1,6 @@
 "use client";
 
+import Form from "next/form";
 import { useState } from "react";
 import { bankCapacity } from "../lib/output/config";
 import { difficulties } from "../lib/output/types";
@@ -36,7 +37,7 @@ export function PracticeSetup() {
   const playable = language === "Python" || language === "JavaScript";
   const length = quantity === "custom" ? String(custom) : quantity;
   return (
-    <form className="training-grid" action="/practice/output">
+    <Form className="training-grid" action="/practice/output">
       <div className="training-options">
         <fieldset className="card training-card">
           <legend>Programming language</legend>
@@ -210,6 +211,6 @@ export function PracticeSetup() {
           Start Training
         </button>
       </aside>
-    </form>
+    </Form>
   );
 }

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
+import { DojoRadioProvider } from "../components/dojo-radio";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -52,6 +53,7 @@ export default function RootLayout({
             <Link href="/terms">Terms</Link>
           </div>
         </footer>
+        <DojoRadioProvider />
       </body>
     </html>
   );

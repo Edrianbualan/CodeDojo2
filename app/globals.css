@@ -17,8 +17,10 @@
 
 :root {
   color-scheme: dark;
+  scroll-padding-bottom: calc(4rem + env(safe-area-inset-bottom));
 }
 body {
+  padding-bottom: calc(4rem + env(safe-area-inset-bottom));
   background: var(--color-dojo-bg);
   color: var(--color-dojo-text);
   font-family: var(--font-sans), system-ui, sans-serif;

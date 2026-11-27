@@ -46,7 +46,7 @@ With the development or production server running, open a second terminal in the
 ## Project structure
 
 - `app/` contains routes, the shared layout, and Tailwind design tokens.
-- `components/` contains reusable interface behavior. The output demo is the only client component on the landing page.
+- `components/` contains reusable interface behavior, including the landing-page demo and the shared Dojo Radio player.
 - `content/` contains original public demo exercises.
 - `lib/output/` contains the practice bank and session selection logic.
 - `supabase/migrations/` contains the profiles, attempts, and XP schema.
@@ -55,6 +55,14 @@ With the development or production server running, open a second terminal in the
 - `PROJECT_STATUS.md` tracks milestones, actual content counts, and verification.
 
 The foundation uses Next.js App Router, React, strict TypeScript, Tailwind CSS, local Geist fonts, ESLint, and Prettier. Supabase Auth verifies identities and PostgreSQL Row Level Security restricts private progress. The practice route grades answers on the server. The two public demo examples include their answers in the browser bundle.
+
+## Dojo Radio
+
+The bottom-left player loops the supplied soundtrack at 15% volume for new visitors. If the browser blocks autoplay, the first click or tap starts playback. Use the player to pause or resume, and expand **Dojo Radio** to adjust volume, mute, or turn the music off. The browser remembers these settings, including pause and off, on refresh.
+
+The shared player keeps its place through in-app navigation, lesson changes, and practice. A full reload begins a new playback session using the saved settings. DojoSensei and Practice Setup still control practice sound effects independently.
+
+The original MP3 lives at `public/audio/background.mp3` and is served as a static asset. It is loaded on demand for playback and needs no environment variables, database, or audio service.
 
 ## DojoLab
 
