@@ -999,3 +999,176 @@ h1,
   min-width: 3.75rem;
   min-height: 44px;
 }
+
+.academy {
+  max-width: 75rem;
+}
+.academy > h1 {
+  font-size: clamp(2.3rem, 6vw, 4.8rem);
+  overflow-wrap: anywhere;
+}
+.academy a:not(.button):not(.academy-card) {
+  color: #9ceafd;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+.academy-courses {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+  gap: 1rem;
+  margin-block: 1.4rem;
+}
+.academy-card {
+  display: grid;
+  align-content: start;
+  gap: 0.7rem;
+  padding: 1.3rem;
+  border-color: #465c73;
+  background: linear-gradient(145deg, #1f2c40, #161b25 65%);
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease;
+}
+.academy-card:hover {
+  transform: translateY(-3px);
+  border-color: #67e8f9;
+}
+.academy-card[data-course="python"] {
+  border-top: 3px solid #67e8f9;
+}
+.academy-card[data-course="javascript"] {
+  border-top: 3px solid #fbbf24;
+}
+.academy-card h2,
+.academy-reading h2,
+.academy-path h2 {
+  font-family: Pixelify, var(--font-geist-mono), monospace;
+}
+.academy-card p {
+  color: var(--color-dojo-muted);
+}
+.academy-path {
+  display: grid;
+  gap: 1rem;
+}
+.academy-path ol {
+  margin-top: 0.85rem;
+  border-inline-start: 2px solid #4b647b;
+  padding-inline-start: 0.85rem;
+}
+.academy-path li {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.5rem 0.35rem;
+  border-bottom: 1px solid #374357;
+}
+.academy-path li span {
+  font-size: 0.85rem;
+  color: var(--color-dojo-muted);
+}
+.academy-outline {
+  margin-block: 1rem;
+}
+.academy-outline nav {
+  padding: 0.5rem 1rem 1rem;
+}
+.academy-outline li {
+  margin-top: 0.45rem;
+}
+.academy-outline a[aria-current="page"] {
+  font-weight: 700;
+  color: #fbbf24 !important;
+}
+.academy-lesson-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(15rem, 19rem);
+  gap: 1rem;
+}
+.academy-lesson-content,
+.academy-reading {
+  min-width: 0;
+}
+.academy-reading {
+  line-height: 1.65;
+}
+.academy-reading h3 {
+  font-size: 1.18rem;
+}
+.academy-reading ul,
+.academy-reading ol {
+  padding-inline-start: 1.35rem;
+}
+.academy-reading ul {
+  list-style-type: disc;
+}
+.academy-reading ol {
+  list-style-type: decimal;
+}
+.academy-reading dt {
+  color: #9ceafd;
+  font-weight: 700;
+}
+.academy-reading pre {
+  overflow: auto;
+  max-width: 100%;
+}
+.academy-reading details {
+  margin-block: 0.65rem;
+}
+.academy-reading details p {
+  padding: 0.2rem 0.8rem 0.85rem;
+}
+.academy-question {
+  padding: 0.75rem;
+  border: 1px solid #40516a;
+  border-radius: 0.55rem;
+  margin-bottom: 0.85rem;
+}
+.academy-question legend {
+  padding-inline: 0.3rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+  max-width: 100%;
+}
+.academy-question label {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 44px;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+.academy-question input {
+  flex: none;
+  accent-color: #84e9f7;
+}
+.academy-navigation {
+  margin-top: 1.25rem;
+}
+.academy-badge {
+  width: fit-content;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid #5dbf87;
+  border-radius: 0.55rem;
+  color: #a3eead;
+  animation: training-enter 0.2s ease-out;
+}
+@media (max-width: 950px) {
+  .academy-lesson-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .academy-navigation .button {
+    min-height: 44px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .academy-card {
+    transition: none;
+  }
+  .academy-card:hover {
+    transform: none;
+  }
+  .academy-badge {
+    animation: none;
+  }
+}

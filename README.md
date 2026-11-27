@@ -70,7 +70,7 @@ The landing page and guest practice run without configuration. For accounts, use
 
 1. In the VS Code terminal run `Copy-Item .env.example .env.local`. Open `.env.local` in the editor and set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` from the project dashboard. Set `NEXT_PUBLIC_APP_URL` to the exact origin you use, such as `http://127.0.0.1:3000`.
 2. Put the Supabase secret key (or legacy service-role key) in `SUPABASE_SERVICE_ROLE_KEY`. The server uses it for validated practice writes and confirmed account deletion. Keep it out of Git, chat, and `NEXT_PUBLIC_` variables.
-3. For a fresh project, run the four files in `supabase/migrations/` in filename order. For an existing project, check the schema first using the query below, and run only the pending files. If the first three migrations are present, run only `202611270002_dashboard_and_assistance.sql`. If the linked Supabase CLI already tracks the earlier migrations, use `supabase migration list` followed by `supabase db push`. Preserve the existing owner-only policies.
+3. For a fresh project, run the five files in `supabase/migrations/` in filename order. For an existing project, check the schema first using the query below and run only pending files. If the linked Supabase CLI already tracks the earlier migrations, use `supabase migration list` followed by `supabase db push`. Preserve the existing owner-only policies.
 4. In Supabase Auth URL Configuration, set **Site URL** to your app origin and allow both `/auth/confirm` and `/auth/confirm?flow=recovery` on that origin. Keep Confirm email enabled for email verification.
 5. For confirmation links that work when opened in a different browser, set the Confirm signup template link to `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email`. Set the Reset password template link to `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery`. The callback also accepts PKCE codes when the browser that initiated the request opens the link.
 6. Restart Next.js, create a test account, verify email delivery, finish onboarding, and answer a practice question. Open **Account** to confirm the saved attempt. Each correctly solved question earns XP once per account. The number of attempts and cumulative accuracy include retries.
@@ -96,14 +96,31 @@ select
   to_regclass('public.output_attempts') as output_attempts,
   to_regclass('public.output_xp') as output_xp,
   to_regclass('public.training_summaries') as training_summaries,
+  to_regclass('public.academy_progress') as academy_progress,
   to_regprocedure('public.output_progress()') as output_progress,
   to_regprocedure('public.learning_dashboard()') as learning_dashboard,
-  to_regprocedure('public.record_output_answer_with_assistance(uuid,uuid,text,text,text,text,boolean,boolean)') as record_assisted_answer;
+  to_regprocedure('public.record_output_answer_with_assistance(uuid,uuid,text,text,text,text,boolean,boolean)') as record_assisted_answer,
+  to_regprocedure('public.record_academy_progress(uuid,text,text,integer,boolean,integer)') as record_academy_progress;
 ```
 
 If a migration was partially applied, compare the existing tables, functions, grants, and policies to that migration before running its remaining statements. After applying the missing changes, run `notify pgrst, 'reload schema';` if the app still reports a schema-cache error. A signed-in account with no profile row goes to onboarding.
 
 In Vercel **Project Settings → Environment Variables**, verify that the URL, publishable key, and server-only secret all come from the same Supabase project. Set `NEXT_PUBLIC_APP_URL` to the Vercel origin and add that origin's auth callback URLs in Supabase. Changes to public build variables take effect with the next approved build. Use Node.js 24 for installation and builds. [Supabase API keys](https://supabase.com/docs/guides/api/api-keys) · [Vercel Node.js versions](https://vercel.com/docs/functions/runtimes/node-js/node-js-versions)
+
+## CodeDojo Academy
+
+Open **Learn** for the Python and JavaScript courses or use **Start Your Journey** to choose between courses, practice, and your last saved lesson. Python has 12 lessons and JavaScript has 11. Each course includes three module projects, three module quizzes, and one final assessment. C, C++, Java, HTML, CSS, PHP, and SQL are listed as unavailable.
+
+Use **Open in Playground** to run a worked example or edit an exercise. DojoLab compares actual output with the displayed sample. For exercises that call `input()` or `readline()`, enter the sample value in Standard input. A sample match helps check that case. It does not validate every possible input. DojoSensei uses curated lesson context and can explain runtime errors when you share them using the playground button.
+
+A correct lesson check marks a lesson complete. Module quizzes and final assessments require at least 80%. Course percentage measures completed lessons. Module completion also requires the module quiz, and the course badge requires all modules and the final. Each course shows estimated time and a completion streak measured in UTC days. Guests can read, run, and grade lessons. Accounts save attempts, best scores, the last accessed item, and Academy XP. Practice XP stays in its own ledger.
+
+### Enable Academy persistence
+
+1. In the development Supabase project, open **SQL Editor** and run `supabase/migrations/202611270003_academy.sql` once. Keep the earlier migrations applied. If the project uses a tracked Supabase CLI migration history, use `supabase migration list` to confirm it is pending, then `supabase db push` against the development project.
+2. Verify `select to_regclass('public.academy_progress');` returns `academy_progress`. If PostgREST reports the new objects are missing from the schema cache, run `notify pgrst, 'reload schema';`.
+3. Keep the existing `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, and server-only `SUPABASE_SERVICE_ROLE_KEY` for the same project. Academy needs no additional environment variables.
+4. Sign in with a development account, pass a lesson, reload the course, and check **Continue Learning**. Retake the lesson and check that Academy XP stays the same. The migration adds only the Academy table, permission policy, and save function.
 
 ## Deployment
 

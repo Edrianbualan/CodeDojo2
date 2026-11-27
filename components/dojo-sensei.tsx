@@ -9,6 +9,7 @@ import {
 } from "react";
 import { chatWithSensei, getOutputHelp } from "../app/practice/output/actions";
 import type { Feedback, Prompt } from "../lib/output/types";
+import type { LessonTutor } from "../lib/academy/types";
 import {
   tutorActions,
   type Mood,
@@ -55,6 +56,16 @@ type Dialogue = {
   failed?: boolean;
 };
 
+const lessonActions: Record<TutorAction, string> = {
+  explain: "Explain this in simpler words",
+  similar: "Give me another example",
+  steps: "Explain step by step",
+  start: "Help me start",
+  hint: "Give me a hint",
+  wrong: "Explain my error",
+  answer: "Quiz me on this lesson",
+};
+
 export function DojoSensei({
   prompt,
   feedback,
@@ -63,6 +74,7 @@ export function DojoSensei({
   onAssist,
   modelEnabled = false,
   labNote,
+  lesson,
 }: {
   prompt?: Prompt;
   feedback?: Feedback;
@@ -71,6 +83,7 @@ export function DojoSensei({
   onAssist?: () => void;
   modelEnabled?: boolean;
   labNote?: string;
+  lesson?: LessonTutor;
 }) {
   const [panel, setPanel] = useState({ open: false, request: 0 });
   const open = panel.request !== openRequest || panel.open;
@@ -122,6 +135,56 @@ export function DojoSensei({
     });
   }
 
+  function teach(message: string, action?: TutorAction) {
+    if (!lesson) return;
+    const detected =
+      action ??
+      (/quiz|test me|check my/i.test(message)
+        ? "answer"
+        : /error|wrong|failed|exception/i.test(message)
+          ? "wrong"
+          : /another|example/i.test(message)
+            ? "similar"
+            : /step|trace/i.test(message)
+              ? "steps"
+              : /hint|clue/i.test(message)
+                ? "hint"
+                : /start|begin/i.test(message)
+                  ? "start"
+                  : "explain");
+    const replies: Record<TutorAction, TutorReply> = {
+      explain: { text: lesson.simple },
+      start: {
+        text: "Start with the first worked example. Predict its output, run it, then change one value and compare.",
+      },
+      hint: { text: lesson.hint },
+      steps: { text: lesson.steps },
+      similar: {
+        text:
+          lesson.example.explanation +
+          " This example prints " +
+          lesson.example.output +
+          ".",
+        code: lesson.example.code,
+      },
+      wrong: {
+        text:
+          labNote ??
+          "Run your code in DojoLab and select Explain Output with DojoSensei. Meanwhile, check this part of the lesson. " +
+            lesson.hint,
+      },
+      answer: {
+        text:
+          "Try this question. " +
+          lesson.question +
+          " Use the lesson’s knowledge check to submit your answer.",
+      },
+    };
+    append({ role: "user", text: message });
+    append({ role: "tutor", ...replies[detected] });
+    unlockAudio("reply");
+  }
+
   async function ask(
     action: TutorAction,
     message: string = tutorActions[action],
@@ -166,8 +229,13 @@ export function DojoSensei({
 
   async function send() {
     const message = draft.trim();
-    if (!message || !prompt || pending) return;
+    if (!message || (!prompt && !lesson) || pending) return;
     setDraft("");
+    if (lesson) {
+      teach(message);
+      return;
+    }
+    if (!prompt) return;
     const intents: [RegExp, TutorAction][] = [
       [
         /correct answer|show (?:me )?(?:the )?(?:answer|solution)|what is the (?:answer|output)/i,
@@ -314,10 +382,11 @@ export function DojoSensei({
                   <p>{labNote}</p>
                 </div>
               )}
-              {prompt ? (
+              {prompt || lesson ? (
                 <>
                   <p className={styles.topic}>
-                    Current topic <strong>{prompt.topic}</strong>
+                    Current topic{" "}
+                    <strong>{lesson?.topic ?? prompt?.topic}</strong>
                   </p>
                   <details>
                     <summary>Suggested questions</summary>
@@ -332,9 +401,15 @@ export function DojoSensei({
                             type="button"
                             key={action}
                             disabled={pending}
-                            onClick={() => void ask(action)}
+                            onClick={() =>
+                              lesson
+                                ? teach(lessonActions[action], action)
+                                : void ask(action)
+                            }
                           >
-                            {tutorActions[action]}
+                            {lesson
+                              ? lessonActions[action]
+                              : tutorActions[action]}
                           </button>
                         ),
                       )}

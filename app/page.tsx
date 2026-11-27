@@ -54,7 +54,7 @@ export default function Home() {
             challenges, and compete with developers around the world.
           </p>
           <div className="actions">
-            <Link className="button" href="/practice/setup">
+            <Link className="button" href="/journey">
               Start Your Journey
             </Link>
             <a className="button outline" href="#features">
@@ -134,7 +134,7 @@ export default function Home() {
       </section>
       <section className="wrap section closing">
         <h2>Try your first CodeDojo exercise</h2>
-        <Link className="button" href="/practice/setup">
+        <Link className="button" href="/journey">
           Start Your Journey
         </Link>
       </section>

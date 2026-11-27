@@ -31,6 +31,7 @@ export default function RootLayout({
               <Link href="/#features">Features</Link>
               <Link href="/#languages">Languages</Link>
               <Link href="/#faq">FAQ</Link>
+              <Link href="/learn">Learn</Link>
               <Link href="/practice/setup">Practice</Link>
               <Link href="/dashboard">Account</Link>
             </nav>

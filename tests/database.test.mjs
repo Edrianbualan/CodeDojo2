@@ -12,6 +12,7 @@ const migrations = [
   "202611260002_output_progress.sql",
   "202611270001_training_summaries.sql",
   "202611270002_dashboard_and_assistance.sql",
+  "202611270003_academy.sql",
 ];
 
 test("profile and output migrations enforce ownership and idempotent XP", async () => {
@@ -52,6 +53,23 @@ test("profile and output migrations enforce ownership and idempotent XP", async 
       [alice, next],
     );
     assert.equal(assisted.rows[0].xp, 0);
+    const learn = (item, score, passed, xp) =>
+      db.query(
+        "select * from public.record_academy_progress($1, 'python', $2, $3, $4, $5)",
+        [alice, item, score, passed, xp],
+      );
+    assert.equal((await learn("hello", null, false, 0)).rows[0].attempts, 0);
+    assert.equal((await learn("hello", 0, false, 25)).rows[0].xp, 0);
+    const completed = (await learn("hello", 100, true, 25)).rows[0];
+    assert.equal(completed.xp, 25);
+    const retry = (await learn("hello", 100, true, 25)).rows[0];
+    assert.equal(retry.xp, 25);
+    assert.equal(retry.attempts, 3);
+    assert.equal(String(completed.completed_at), String(retry.completed_at));
+    assert.equal(
+      (await learn("module-1", 75, false, 40)).rows[0].completed_at,
+      null,
+    );
 
     await db.exec(
       `reset role; set role authenticated; set "request.jwt.claim.sub" = '${alice}'`,
@@ -67,6 +85,15 @@ test("profile and output migrations enforce ownership and idempotent XP", async 
       /row-level security/i,
     );
     await assert.rejects(record(alice, first), /permission denied/i);
+    await assert.rejects(learn("final", 100, true, 60), /permission denied/i);
+    await assert.rejects(
+      db.exec("update public.academy_progress set xp = 500"),
+      /permission denied/i,
+    );
+    assert.equal(
+      (await db.query("select * from public.academy_progress")).rows.length,
+      2,
+    );
     await assert.rejects(
       db.exec("update public.output_attempts set correct = true"),
       /permission denied/i,
@@ -112,6 +139,10 @@ test("profile and output migrations enforce ownership and idempotent XP", async 
       1,
     );
     await db.exec(`set "request.jwt.claim.sub" = '${bob}'`);
+    assert.equal(
+      (await db.query("select * from public.academy_progress")).rows.length,
+      0,
+    );
     assert.equal(
       (await db.query("select public.learning_dashboard() as dashboard"))
         .rows[0].dashboard.xp,

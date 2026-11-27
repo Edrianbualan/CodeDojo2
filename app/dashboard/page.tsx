@@ -267,6 +267,13 @@ export default async function Dashboard() {
         <Link className="button" href="/practice/setup">
           Start practice
         </Link>
+        <Link
+          className="button outline"
+          href="/learn/continue"
+          prefetch={false}
+        >
+          Continue Learning
+        </Link>
         <Link className="button outline" href="/profile">
           Edit profile
         </Link>

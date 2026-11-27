@@ -51,6 +51,14 @@
 - The recovery page includes matching password fields and visibility controls. A successful update clears the browser recovery session and returns the user to sign-in. Invalid and expired links lead back to the request form.
 - Production redirect configuration and email template targets are documented in README.md. Verification uses a local Supabase Auth fixture with synthetic accounts. Hosted Gmail delivery and the Vercel reset flow still need a live check after the updated release.
 
+## CodeDojo Academy
+
+- Learn, course outlines, and Continue Learning are integrated with the homepage and account dashboard. Start Your Journey links to learning, practice setup, and resume.
+- Python has 12 lessons and JavaScript has 11 across Beginner, Intermediate, and Advanced. The courses include 46 worked examples, 23 lesson checks, six module projects and quizzes, and two final assessments. Remaining language courses are identified as unavailable.
+- Lessons reuse DojoLab and DojoSensei for editing, execution, sample-output checks, and curated help. Project evaluation compares the displayed sample output.
+- A new additive migration stores private course progress, last-accessed items, best scores, attempts, and one XP award per passed item. Completion, achievements, estimations, and UTC streaks are calculated from course records. Live Supabase needs the migration and a signed-in check.
+- The production build, TypeScript, and all 30 automated tests passed, including password recovery regression checks. Browser testing covered the Python lesson flow, contextual help, navigation, and a JavaScript project and quiz at 320 CSS pixels. Local PostgreSQL verified account isolation and duplicate XP protection.
+
 ## Later roadmap
 
 1. **Phase 4** — Learning paths, daily challenges, broader XP and achievements, rankings, and advanced analytics.

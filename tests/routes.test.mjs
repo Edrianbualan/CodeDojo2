@@ -3,6 +3,42 @@ import { test } from "node:test";
 
 const base = process.env.CODEDOJO_TEST_URL ?? "http://localhost:3000";
 
+test("Academy pages display real lessons, assessments and journey choices", async () => {
+  for (const [path, headings] of [
+    [
+      "/journey",
+      ["Learn Programming", "Practice Challenges", "Continue Learning"],
+    ],
+    [
+      "/learn",
+      ["CodeDojo Academy", "View Python course", "View JavaScript course"],
+    ],
+    [
+      "/learn/python/hello",
+      [
+        "What you’ll learn",
+        "Worked examples",
+        "Mark as Complete",
+        "Next Lesson",
+        "Open DojoSensei",
+      ],
+    ],
+    ["/learn/javascript/module-1", ["Mini project", "Submit assessment"]],
+    [
+      "/learn/javascript/final",
+      ["Final course assessment", "Submit assessment"],
+    ],
+  ]) {
+    const response = await fetch(new URL(path, base));
+    assert.equal(response.status, 200, path);
+    const html = (await response.text()).replaceAll("<!-- -->", "");
+    for (const heading of headings)
+      assert.ok(html.includes(heading), path + " missing " + heading);
+    assert.doesNotMatch(html, /"answer":\d/);
+  }
+  assert.equal((await fetch(new URL("/learn/sql", base))).status, 404);
+});
+
 test("landing page serves the demo and security headers", async () => {
   const response = await fetch(new URL("/", base));
   assert.equal(response.status, 200);

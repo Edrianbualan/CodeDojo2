@@ -32,10 +32,12 @@ export function DojoLab({
   initialLanguage,
   onAssist,
   onExplain,
+  expectedOutput,
 }: {
   original: string;
   initialLanguage: LabLanguage;
-  onAssist: () => void;
+  onAssist?: () => void;
+  expectedOutput?: string;
   onExplain?: (value: {
     code: string;
     result: LabResult;
@@ -77,7 +79,7 @@ export function DojoLab({
 
   function run() {
     if (!code.trim() || code.length > maxSource || frame.current) return;
-    onAssist();
+    onAssist?.();
     latestRun.current = { code, language };
     unlockAudio("run");
     setResult(undefined);
@@ -190,7 +192,9 @@ export function DojoLab({
         <button
           className="button outline"
           type="button"
-          onClick={() => void copyText(original, "Question code")}
+          onClick={() =>
+            void copyText(original, onAssist ? "Question code" : "Example code")
+          }
         >
           Copy Code
         </button>
@@ -216,7 +220,7 @@ export function DojoLab({
             DojoLab
           </h3>
           <p className="muted">
-            Running code counts as assisted practice. Use{" "}
+            {onAssist && "Running code counts as assisted practice. "}Use{" "}
             {language === "Python" ? "input()" : "readline()"} for standard
             input.
           </p>
@@ -345,6 +349,22 @@ export function DojoLab({
           </div>
           <div className="lab-terminal">
             <h4>Output terminal</h4>
+            {expectedOutput !== undefined && (
+              <details>
+                <summary>Expected sample output</summary>
+                <pre>
+                  <code>{expectedOutput}</code>
+                </pre>
+              </details>
+            )}
+            {expectedOutput !== undefined && result?.status === "success" && (
+              <p role="status">
+                {result.stdout.replace(/\r\n/g, "\n").trimEnd() ===
+                expectedOutput.trimEnd()
+                  ? "The output matches this sample."
+                  : "The output is different from this sample. Compare the lines and try again."}
+              </p>
+            )}
             <p role="status">
               {phase === "loading"
                 ? "Starting the isolated runtime…"
