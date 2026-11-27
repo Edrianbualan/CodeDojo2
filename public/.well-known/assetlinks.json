@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.codedojo.app",
+        "sha256_cert_fingerprints": ["97:7A:A2:76:64:98:4F:29:1E:C1:28:DE:59:8E:05:1B:CA:96:B0:2F:2C:A6:23:DD:F1:FF:8C:C7:67:83:89:CF"]
+      }
+    }]
