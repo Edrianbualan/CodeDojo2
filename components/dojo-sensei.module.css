@@ -286,3 +286,25 @@
   color: #ddd0ff;
   margin-top: 0.5rem;
 }
+
+.fullscreen {
+  position: fixed;
+  z-index: 90;
+  max-height: none;
+  inset: 0;
+  border-radius: 0;
+  padding: max(1rem, env(safe-area-inset-top))
+    max(1rem, env(safe-area-inset-right)) max(1rem, env(safe-area-inset-bottom))
+    max(1rem, env(safe-area-inset-left));
+}
+.fullscreen .chatHistory {
+  max-height: none;
+  min-height: 10rem;
+}
+.fullscreen .composer {
+  position: sticky;
+  bottom: 0;
+}
+.composer textarea {
+  font-size: 1rem;
+}

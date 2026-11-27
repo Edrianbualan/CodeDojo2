@@ -11,6 +11,7 @@ const migrations = [
   "202611260001_profiles.sql",
   "202611260002_output_progress.sql",
   "202611270001_training_summaries.sql",
+  "202611270002_dashboard_and_assistance.sql",
 ];
 
 test("profile and output migrations enforce ownership and idempotent XP", async () => {
@@ -46,6 +47,11 @@ test("profile and output migrations enforce ownership and idempotent XP", async 
     await assert.rejects(record(alice, first, "9", false), /Attempt ID/);
     assert.equal((await record(alice, next)).rows[0].xp, 0);
     assert.equal((await record(bob, first, "9", false)).rows[0].xp, 0);
+    const assisted = await db.query(
+      "select public.record_output_answer_with_assistance($1, $2, 'python-0-0-0', '8', 'Python', 'Beginner', true, true) as xp",
+      [alice, next],
+    );
+    assert.equal(assisted.rows[0].xp, 0);
 
     await db.exec(
       `reset role; set role authenticated; set "request.jwt.claim.sub" = '${alice}'`,
@@ -82,6 +88,22 @@ test("profile and output migrations enforce ownership and idempotent XP", async 
         [user, first],
       );
     await summary(alice);
+    const {
+      rows: [{ dashboard }],
+    } = await db.query("select public.learning_dashboard() as dashboard");
+    assert.deepEqual(dashboard.totals, {
+      attempts: 2,
+      correct: 2,
+      assisted: 1,
+      unclassified: 1,
+    });
+    assert.equal(dashboard.completion[0].completed, 1);
+    assert.equal(dashboard.xp, 5);
+    assert.equal(dashboard.seconds, 30);
+    assert.equal(dashboard.streak, 1);
+    assert.equal(dashboard.best_streak, 1);
+    assert.equal(dashboard.week.length, 7);
+    assert.equal(dashboard.sessions.length, 1);
     await assert.rejects(summary(alice), /duplicate key/i);
     await assert.rejects(summary(bob), /row-level security/i);
     assert.equal(
@@ -90,6 +112,11 @@ test("profile and output migrations enforce ownership and idempotent XP", async 
       1,
     );
     await db.exec(`set "request.jwt.claim.sub" = '${bob}'`);
+    assert.equal(
+      (await db.query("select public.learning_dashboard() as dashboard"))
+        .rows[0].dashboard.xp,
+      0,
+    );
     assert.equal(
       (await db.query("select * from public.training_summaries")).rows.length,
       0,

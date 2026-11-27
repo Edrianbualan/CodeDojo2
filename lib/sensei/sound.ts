@@ -10,6 +10,11 @@ export type Sound =
   | "level"
   | "send"
   | "click"
+  | "run"
+  | "runDone"
+  | "runError"
+  | "achievement"
+  | "xp"
   | "select";
 const melodies: Record<Sound, number[]> = {
   open: [392, 523],
@@ -21,6 +26,11 @@ const melodies: Record<Sound, number[]> = {
   level: [523, 659, 784, 1047],
   send: [659, 494],
   click: [330],
+  run: [330, 440],
+  runDone: [523, 784],
+  runError: [294, 220],
+  achievement: [440, 587, 880, 1175],
+  xp: [784, 988],
   select: [440],
 };
 type AudioSettings = { enabled: boolean; volume: number };

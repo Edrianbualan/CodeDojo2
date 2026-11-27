@@ -3,6 +3,7 @@
 import { z } from "zod";
 import { account, serviceClient } from "../../../lib/supabase/server";
 import { authConfig } from "../../../lib/supabase/config";
+import { accountHelp, accountIssue } from "../../../lib/supabase/diagnostics";
 import { makeTutorReply } from "../../../lib/sensei/reply";
 import { askOllama } from "../../../lib/sensei/ollama";
 import {
@@ -104,6 +105,7 @@ const submission = z.object({
     .trim()
     .regex(/^-?[0-9]{1,10}$/),
   mode: z.enum(["choice", "written"]),
+  assisted: z.boolean().default(false),
 });
 
 export async function saveTrainingSummary(input: unknown) {
@@ -135,7 +137,7 @@ export async function gradeOutput(
 ): Promise<{ feedback: Feedback } | { error: string }> {
   const result = submission.safeParse(input);
   if (!result.success) return { error: "That answer could not be checked." };
-  const { id, attempt, answer, mode } = result.data;
+  const { id, attempt, answer, mode, assisted } = result.data;
   const question = findQuestion(id);
   if (!question || (mode === "choice" && !question.options.includes(answer)))
     return { error: "Choose one of the listed answers." };
@@ -154,7 +156,7 @@ export async function gradeOutput(
       return {
         error: "Saving practice requires the server’s Supabase secret key.",
       };
-    const saved = await writer.rpc("record_output_answer", {
+    const saved = await writer.rpc("record_output_answer_with_assistance", {
       p_user: session.user.id,
       p_attempt: attempt,
       p_question: id,
@@ -162,8 +164,15 @@ export async function gradeOutput(
       p_language: question.language,
       p_difficulty: question.difficulty,
       p_correct: correct,
+      p_assisted: assisted,
     });
-    if (saved.error || typeof saved.data !== "number")
+    if (saved.error)
+      return {
+        error:
+          "Progress couldn’t be saved. " +
+          accountHelp[accountIssue(saved.error)],
+      };
+    if (typeof saved.data !== "number")
       return { error: "Progress couldn’t be saved. Try again." };
     xp = saved.data;
   }

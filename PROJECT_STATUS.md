@@ -37,10 +37,18 @@
 - Results report elapsed time, correct answers, incorrect attempts, skips, assistance, topics, and practice XP. The training summaries migration stores a private record per completed session for signed-in users. XP still comes from the verified per-answer ledger.
 - The project now uses locally hosted Pixelify Sans for display text, layered training cards, and reduced-motion-aware feedback dialogs. Ollama and authenticated redirects still need live service verification.
 
+## DojoLab and account dashboard
+
+- Predict the Output now includes question-code copy, a collapsible DojoLab editor, and Python and JavaScript execution in an opaque browser frame with a disposable worker. Monaco loads on supported desktops. Touch devices use an auto-indenting text area. DojoLab includes standard input, error and output displays, cancellation, a timeout, fullscreen, and DojoSensei explanations.
+- The runner uses locally installed Pyodide static files. It limits source and captured output, and its network policy permits only the Python runtime files. Browser workers have no portable hard memory limit.
+- The new account migration persists assistance on each graded answer, preserves unknown assistance for older attempts, and feeds the dashboard with unique completions, XP, UTC activity, streaks, and session history. The dashboard calculates rank and achievements from those records.
+- The account page now provides separate diagnostics for missing schema objects, database permissions, and connection errors. This checkout has no live Supabase credentials or production Git remote. The exact hosted cause and authenticated dashboard still need live verification. README.md contains the read-only schema preflight and migration steps.
+- Browser checks passed for Python, JavaScript input, syntax errors, cancellation, execution timeout, tutor explanations, and fullscreen chat at 320 CSS pixels. Production-build checks confirmed Python, JavaScript network restrictions, the terminal output cap, and the 768px layout. Local PostgreSQL tests passed for all four migrations, assistance isolation, unique completion, and duplicate XP protection.
+
 ## Later roadmap
 
 1. **Phase 4** — Learning paths, daily challenges, broader XP and achievements, rankings, and advanced analytics.
-2. **Phase 5** — Monaco, isolated execution, executable challenges, SQL Arena, algorithm lab, and code puzzles.
+2. **Phase 5** — Additional language runtimes, executable challenges, SQL Arena, algorithm lab, and code puzzles.
 3. **Phase 6** — Realtime battles, interviews, and optional local-model support for DojoSensei.
 4. **Phase 7** — Admin, content management, production security and accessibility testing, and deployment documentation.
 
@@ -48,7 +56,7 @@ Public deployment and production database changes require owner approval.
 
 ## Verification
 
-- ESLint, Prettier, strict TypeScript, the production build, and all 19 automated tests passed for the training upgrade.
+- ESLint, Prettier, strict TypeScript, the production build, and all 19 automated tests passed for the DojoLab and account upgrade.
 - Browser verification followed Start Your Journey through a five-question session, wrong feedback, typed help, retry, correct feedback, previous and next navigation, four skips, and the final assistance count. The setup and tutor also fit at 390 CSS pixels.
 - Browser checks covered contextual hints, similar examples, answer explanations, mute controls, correct and incorrect reactions, the 100-XP level-up, and session completion. At 390 CSS pixels, the tutor sat below the exercise without horizontal overflow.
 - The browser completed a 10-question local session and displayed the final score, accuracy, and XP. It exercised Next Question, retry, restart, exit, a 50-question JavaScript Expert setup, and written-answer feedback in a 20-question session.

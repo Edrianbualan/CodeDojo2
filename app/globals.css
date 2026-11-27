@@ -786,3 +786,197 @@ h1,
     transform: none;
   }
 }
+
+.practice-code-tools {
+  min-width: 0;
+}
+.practice-code-tools > pre {
+  max-width: 100%;
+  overflow: auto;
+}
+.lab {
+  min-width: 0;
+  margin-bottom: 0.9rem;
+}
+.lab-panel {
+  display: grid;
+  gap: 0.8rem;
+  border-color: #46637a;
+  padding: 0.9rem;
+}
+.lab-panel select {
+  max-width: 100%;
+}
+.lab-editor {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid #40516a;
+  border-radius: 0.5rem;
+}
+.lab textarea {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  background: #111923;
+  color: #f4f8ff;
+  padding: 0.6rem;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 1rem;
+  resize: vertical;
+}
+.lab-input textarea {
+  border: 1px solid #40516a;
+  border-radius: 0.45rem;
+}
+.lab-terminal {
+  min-width: 0;
+  padding: 0.65rem;
+  border-radius: 0.5rem;
+  background: #10141d;
+}
+.lab-terminal pre {
+  max-height: 14rem;
+  overflow: auto;
+}
+.lab-fullscreen {
+  position: fixed;
+  z-index: 80;
+  inset: 0;
+  overflow: auto;
+  margin: 0;
+  padding: max(1rem, env(safe-area-inset-top))
+    max(1rem, env(safe-area-inset-right)) max(1rem, env(safe-area-inset-bottom))
+    max(1rem, env(safe-area-inset-left));
+  background: #0d121c;
+}
+.lab-fullscreen .lab-launch {
+  display: none;
+}
+@media (min-width: 1200px) {
+  .practice-code-tools:has(.lab-panel):not(:has(.lab-fullscreen)) {
+    display: grid;
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    align-items: start;
+    gap: 0.8rem;
+  }
+}
+.account-dashboard {
+  max-width: 72rem;
+}
+.dashboard-identity {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+.dashboard-identity h1 {
+  overflow-wrap: anywhere;
+}
+.dashboard-avatar {
+  display: grid;
+  place-items: center;
+  min-width: 3rem;
+  aspect-ratio: 1;
+  border: 1px solid #a78bfa;
+  border-radius: 0.7rem;
+  background: #31254d;
+  color: #e9dcff;
+  font:
+    1.5rem Pixelify,
+    monospace;
+}
+.dashboard-hero {
+  display: grid;
+  gap: 0.9rem;
+  border-color: #a78748;
+  background: linear-gradient(145deg, #302733, #172330 70%);
+}
+.dashboard-stats {
+  margin-block: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr));
+  gap: 0.65rem;
+}
+.dashboard-stats dd {
+  font:
+    1.35rem Pixelify,
+    monospace;
+  color: #f9d794;
+}
+.dashboard-stats dt {
+  color: var(--color-dojo-muted);
+}
+.dashboard-columns {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.dashboard-language + .dashboard-language {
+  margin-top: 1rem;
+}
+.dashboard-language dl {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+  gap: 0.55rem;
+  margin-block: 0.65rem;
+  font-size: 0.9rem;
+}
+.dashboard-language dd {
+  color: #93e9f8;
+}
+.dashboard-chart {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  text-align: center;
+  gap: 0.2rem;
+  margin: 0.9rem 0;
+}
+.dashboard-chart li {
+  display: grid;
+  justify-items: center;
+  gap: 0.3rem;
+}
+.dashboard-chart meter {
+  width: 90%;
+}
+.dashboard-chart small {
+  font-size: 0.72rem;
+  color: var(--color-dojo-muted);
+}
+.dashboard-achievements,
+.dashboard-sessions {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 0.7rem;
+}
+.dashboard-achievements li,
+.dashboard-sessions li {
+  display: grid;
+  gap: 0.15rem;
+  border-bottom: 1px solid #344156;
+  padding-block: 0.45rem;
+}
+.dashboard-achievements strong {
+  color: #e6ca88;
+}
+.dashboard-sessions span {
+  color: var(--color-dojo-muted);
+}
+@media (max-width: 700px) {
+  .dashboard-columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .lab .button,
+  .account-dashboard .button {
+    min-height: 44px;
+  }
+}
+
+.dashboard-language dd progress {
+  display: block;
+  width: 100%;
+  height: 0.5rem;
+  color: #67e8f9;
+  accent-color: #67e8f9;
+}

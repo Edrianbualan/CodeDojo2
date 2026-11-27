@@ -54,7 +54,15 @@ With the development or production server running, open a second terminal in the
 - `next.config.ts` configures common security headers.
 - `PROJECT_STATUS.md` tracks milestones, actual content counts, and verification.
 
-The foundation uses Next.js App Router, React, strict TypeScript, Tailwind CSS, local Geist fonts, ESLint, and Prettier. Supabase Auth verifies identities and PostgreSQL Row Level Security restricts private progress. The practice route grades answers on the server. The two public demo examples include their answers in the browser bundle. Compiled and interpreted user submissions will require a separate, isolated runner.
+The foundation uses Next.js App Router, React, strict TypeScript, Tailwind CSS, local Geist fonts, ESLint, and Prettier. Supabase Auth verifies identities and PostgreSQL Row Level Security restricts private progress. The practice route grades answers on the server. The two public demo examples include their answers in the browser bundle.
+
+## DojoLab
+
+Start a Predict the Output session and choose **Open in Playground**. DojoLab loads Monaco on desktop and an editable text area with automatic indentation on touch screens. The question supplies the initial source. Use Python's `input()` or JavaScript's `readline()` to read one line of standard input.
+
+Each run uses a fresh worker in a sandboxed frame with an opaque origin. JavaScript has a no-network content policy. Python loads pinned, self-hosted Pyodide assets, and its content policy allows only those runtime files. The runtime receives source and standard input. Python downloads its runtime on first use. The browser terminates an execution after three seconds once the runtime starts, and the terminal limits captured output. Browser workers have no portable hard memory quota. Python supports the bundled standard library subset.
+
+`npm ci` and `npm run build` prepare the Pyodide files from the dependency lockfile. If install scripts were skipped, run `node scripts/prepare-lab.mjs` before starting the development server. The browser playground requires HTTPS or localhost for clipboard functions. Running code before checking an answer marks that question as assisted practice. The account dashboard preserves earlier records without assigning them an assistance status retroactively.
 
 ## Enable accounts and saved progress
 
@@ -62,15 +70,34 @@ The landing page and guest practice run without configuration. For accounts, use
 
 1. In the VS Code terminal run `Copy-Item .env.example .env.local`. Open `.env.local` in the editor and set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` from the project dashboard. Set `NEXT_PUBLIC_APP_URL` to the exact origin you use, such as `http://127.0.0.1:3000`.
 2. Put the Supabase secret key (or legacy service-role key) in `SUPABASE_SERVICE_ROLE_KEY`. The server uses it for validated practice writes and confirmed account deletion. Keep it out of Git, chat, and `NEXT_PUBLIC_` variables.
-3. In the development project's SQL Editor, run `supabase/migrations/202611260001_profiles.sql`, then `supabase/migrations/202611260002_output_progress.sql` and `supabase/migrations/202611270001_training_summaries.sql` in that order. Run each once on a fresh database. If you use a linked Supabase CLI development project, run `supabase db push` from this folder.
+3. For a fresh project, run the four files in `supabase/migrations/` in filename order. For an existing project, check the schema first using the query below, and run only the pending files. If the first three migrations are present, run only `202611270002_dashboard_and_assistance.sql`. If the linked Supabase CLI already tracks the earlier migrations, use `supabase migration list` followed by `supabase db push`. Preserve the existing owner-only policies.
 4. In Supabase Auth URL Configuration, set **Site URL** to your app origin and allow both `/auth/confirm` and `/auth/confirm?flow=recovery` on that origin. Keep Confirm email enabled for email verification.
 5. For confirmation links that work when opened in a different browser, set the Confirm signup template link to `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email`. Set the Reset password template link to `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery`. The callback also accepts PKCE codes when the browser that initiated the request opens the link.
 6. Restart Next.js, create a test account, verify email delivery, finish onboarding, and answer a practice question. Open **Account** to confirm the saved attempt. Each correctly solved question earns XP once per account. The number of attempts and cumulative accuracy include retries.
 
 Optional Google sign-in requires configuring the Google provider in the development Supabase project and setting `ENABLE_GOOGLE_AUTH=true`. A Google-only account can set a password through recovery before using password-confirmed deletion. Consult the official [Supabase server-side Auth guide](https://supabase.com/docs/guides/auth/server-side/creating-a-client?queryGroups=framework&framework=nextjs) and [password-based Auth guide](https://supabase.com/docs/guides/auth/passwords) for provider and email setup.
 
+### Diagnose profile and progress errors
+
+Open Supabase **SQL Editor**, run this read-only query, and look for null entries.
+
+```sql
+select
+  to_regclass('public.profiles') as profiles,
+  to_regclass('public.output_attempts') as output_attempts,
+  to_regclass('public.output_xp') as output_xp,
+  to_regclass('public.training_summaries') as training_summaries,
+  to_regprocedure('public.output_progress()') as output_progress,
+  to_regprocedure('public.learning_dashboard()') as learning_dashboard,
+  to_regprocedure('public.record_output_answer_with_assistance(uuid,uuid,text,text,text,text,boolean,boolean)') as record_assisted_answer;
+```
+
+If a migration was partially applied, compare the existing tables, functions, grants, and policies to that migration before running its remaining statements. After applying the missing changes, run `notify pgrst, 'reload schema';` if the app still reports a schema-cache error. A signed-in account with no profile row goes to onboarding.
+
+In Vercel **Project Settings → Environment Variables**, verify that the URL, publishable key, and server-only secret all come from the same Supabase project. Set `NEXT_PUBLIC_APP_URL` to the Vercel origin and add that origin's auth callback URLs in Supabase. Changes to public build variables take effect with the next approved build. Use Node.js 24 for installation and builds. [Supabase API keys](https://supabase.com/docs/guides/api/api-keys) · [Vercel Node.js versions](https://vercel.com/docs/functions/runtimes/node-js/node-js-versions)
+
 ## Deployment
 
-Admin provisioning, isolated execution, and optional Ollama support belong to later milestones. The Supabase Free plan currently allows two active projects and pauses a project after a week of inactivity. Verify quotas and hosting terms again before release. See [Supabase pricing](https://supabase.com/pricing).
+Admin provisioning and additional language runners belong to later milestones. DojoLab runs in the browser and uses static runtime files, so it needs no Vercel execution service or paid API.
 
 A local production build can be tested using `npm run build` and `npm start`. Public deployment requires owner approval plus production configuration, tested authorization, and updated privacy and terms pages for the actual hosted service.

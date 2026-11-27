@@ -7,6 +7,8 @@
     "node": ">=24"
   },
   "scripts": {
+    "postinstall": "node scripts/prepare-lab.mjs",
+    "prebuild": "node scripts/prepare-lab.mjs",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
@@ -16,10 +18,13 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
+    "@monaco-editor/react": "^4.7.0",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.119.2",
     "geist": "^1.4.0",
+    "monaco-editor": "^0.52.2",
     "next": "^16.0.0",
+    "pyodide": "^0.27.7",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "server-only": "^0.0.1",

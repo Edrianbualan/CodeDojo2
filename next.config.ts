@@ -5,6 +5,10 @@ const config: NextConfig = {
   async headers() {
     return [
       {
+        source: "/lab-runtime/:asset",
+        headers: [{ key: "Access-Control-Allow-Origin", value: "*" }],
+      },
+      {
         source: "/:path*",
         headers: [
           { key: "X-Content-Type-Options", value: "nosniff" },

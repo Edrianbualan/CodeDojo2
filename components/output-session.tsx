@@ -9,6 +9,8 @@ import {
   startOutput,
 } from "../app/practice/output/actions";
 import { DojoSensei } from "./dojo-sensei";
+import { DojoLab } from "./dojo-lab";
+import { explainLab } from "../lib/lab/explain";
 import { practiceLevel, type Reaction } from "../lib/sensei/types";
 import {
   audioSnapshot,
@@ -85,6 +87,7 @@ export function OutputSession({
   const [popup, setPopup] = useState<Feedback>();
   const [solution, setSolution] = useState("");
   const [tutorOpen, setTutorOpen] = useState(0);
+  const [labNote, setLabNote] = useState<{ id: string; text: string }>();
   const [clock, setClock] = useState(0);
   const seen = useRef(new Set<string>());
   const rewarded = useRef(new Set<string>());
@@ -341,6 +344,7 @@ export function OutputSession({
         answer: choice,
         mode: written ? "written" : "choice",
         attempt: attempt.current,
+        assisted: Boolean(current?.assisted),
       });
       if ("error" in result) {
         setError(result.error);
@@ -369,7 +373,9 @@ export function OutputSession({
               text: "Try tracing the values one step at a time.",
             },
       );
-      playSound(leveled ? "level" : feedback.correct ? "correct" : "incorrect");
+      if (leveled) playSound("level");
+      else if (feedback.xp > 0) playSound(xpTotal === 0 ? "achievement" : "xp");
+      else playSound(feedback.correct ? "correct" : "incorrect");
       record((previous) => ({
         ...previous,
         feedback,
@@ -568,9 +574,35 @@ export function OutputSession({
                     Jump to DojoSensei
                   </a>
                 )}
-                <pre tabIndex={0} aria-label={settings.language + " snippet"}>
-                  <code>{question.code}</code>
-                </pre>
+                <div className="practice-code-tools">
+                  <pre tabIndex={0} aria-label={settings.language + " snippet"}>
+                    <code>{question.code}</code>
+                  </pre>
+                  <DojoLab
+                    key={position + ":" + question.id}
+                    original={question.code}
+                    initialLanguage={settings.language}
+                    onAssist={() =>
+                      record((result) => ({ ...result, assisted: true }))
+                    }
+                    onExplain={
+                      settings.tutor === "on"
+                        ? ({ language, code, result }) => {
+                            setLabNote({
+                              id: question.id,
+                              text: explainLab(language, code, result),
+                            });
+                            setTutorOpen((value) => value + 1);
+                            requestAnimationFrame(() =>
+                              document
+                                .getElementById("practice-tutor")
+                                ?.scrollIntoView({ block: "nearest" }),
+                            );
+                          }
+                        : undefined
+                    }
+                  />
+                </div>
                 <form onSubmit={submit}>
                   <fieldset disabled={pending || Boolean(locked)}>
                     <legend>What does this code print?</legend>
@@ -686,6 +718,9 @@ export function OutputSession({
       </div>
       {settings.tutor === "on" && (
         <DojoSensei
+          labNote={
+            active && labNote?.id === question?.id ? labNote.text : undefined
+          }
           modelEnabled={modelEnabled}
           prompt={active ? question : undefined}
           feedback={current?.feedback}

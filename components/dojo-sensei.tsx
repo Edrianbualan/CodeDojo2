@@ -62,6 +62,7 @@ export function DojoSensei({
   openRequest = 0,
   onAssist,
   modelEnabled = false,
+  labNote,
 }: {
   prompt?: Prompt;
   feedback?: Feedback;
@@ -69,9 +70,11 @@ export function DojoSensei({
   openRequest?: number;
   onAssist?: () => void;
   modelEnabled?: boolean;
+  labNote?: string;
 }) {
   const [panel, setPanel] = useState({ open: false, request: 0 });
   const open = panel.request !== openRequest || panel.open;
+  const [expanded, setExpanded] = useState(false);
   const [dialogue, setDialogue] = useState<Dialogue>();
   const [draft, setDraft] = useState("");
   const [messages, setMessages] = useState<
@@ -105,6 +108,7 @@ export function DojoSensei({
     if (!open) {
       unlockAudio("open");
     } else {
+      setExpanded(false);
       trigger.current?.focus();
     }
     setPanel({ open: !open, request: openRequest });
@@ -270,7 +274,11 @@ export function DojoSensei({
             {open ? "Close DojoSensei" : "Open DojoSensei"}
           </span>
         </button>
-        <div id={panelId} className={styles.panel} hidden={!open}>
+        <div
+          id={panelId}
+          className={styles.panel + (expanded ? " " + styles.fullscreen : "")}
+          hidden={!open}
+        >
           {open && (
             <>
               <div className={styles.header}>
@@ -280,7 +288,32 @@ export function DojoSensei({
                     ? "Local model with rule-based guidance"
                     : "Rule-based programming tutor"}
                 </p>
+                <div className="actions">
+                  <button
+                    type="button"
+                    className="button outline"
+                    aria-pressed={expanded}
+                    onClick={() => setExpanded(!expanded)}
+                  >
+                    {expanded ? "Exit fullscreen chat" : "Fullscreen chat"}
+                  </button>
+                  {expanded && (
+                    <button
+                      type="button"
+                      className="button outline"
+                      onClick={toggle}
+                    >
+                      Minimize tutor
+                    </button>
+                  )}
+                </div>
               </div>
+              {labNote && (
+                <div className={styles.reply} role="status">
+                  <strong>DojoLab explanation</strong>
+                  <p>{labNote}</p>
+                </div>
+              )}
               {prompt ? (
                 <>
                   <p className={styles.topic}>
